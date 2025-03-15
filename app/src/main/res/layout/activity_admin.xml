@@ -30,7 +30,7 @@
         tools:context="com.hmdm.launcher.ui.AdminActivity"
         android:gravity="center_horizontal">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:title="@string/admin_title"

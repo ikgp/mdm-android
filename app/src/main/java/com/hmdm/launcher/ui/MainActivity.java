@@ -20,6 +20,7 @@
 package com.hmdm.launcher.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.bluetooth.BluetoothAdapter;
@@ -66,12 +67,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.databinding.DataBindingUtil;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.github.anrwatchdog.ANRWatchDog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.R;
@@ -349,9 +350,7 @@ public class MainActivity
                         startActivity(intent);
                     }
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    finishAffinity();
-                }
+                finishAffinity();
                 System.exit(0);
             }
         });
@@ -1391,7 +1390,7 @@ public class MainActivity
     public void onFileInstallError(RemoteFile remoteFile) {
         if (!ProUtils.kioskModeRequired(MainActivity.this) && !isContentShown()) {
             try {
-                new AlertDialog.Builder(MainActivity.this)
+                new MaterialAlertDialogBuilder(MainActivity.this)
                         .setMessage(getString(R.string.file_create_error) + " " + remoteFile.getPath())
                         .setPositiveButton(R.string.dialog_administrator_mode_continue, new DialogInterface.OnClickListener() {
                             @Override
@@ -1451,7 +1450,7 @@ public class MainActivity
                 if (!ProUtils.kioskModeRequired(MainActivity.this) && !isContentShown()) {
 
                     try {
-                        new AlertDialog.Builder(MainActivity.this)
+                        new MaterialAlertDialogBuilder(MainActivity.this)
                                 .setMessage(getString(R.string.install_error) + " " + packageName)
                                 .setPositiveButton(R.string.dialog_administrator_mode_continue, new DialogInterface.OnClickListener() {
                                     @Override
@@ -2348,7 +2347,7 @@ public class MainActivity
                     // Let's confirm with the user once again, then display the settings sheet
                     try {
                         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Const.ACTION_ENABLE_SETTINGS));
-                        new AlertDialog.Builder(MainActivity.this)
+                        new MaterialAlertDialogBuilder(MainActivity.this)
                                 .setMessage(getString(R.string.background_location, getString(R.string.white_app_name)))
                                 .setPositiveButton(R.string.background_location_continue, (dialog, which) -> {
                                     startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -2526,6 +2525,7 @@ public class MainActivity
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {}
 
