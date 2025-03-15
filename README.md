@@ -1,10 +1,6 @@
-# Headwind MDM: free and open-source MDM launcher
+# IKGP MDM
 
-A Powerful Open Source Platform to Manage your Enterprise Android Devices
-
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/com.hmdm.launcher/)
+A customized MDM client based on Headwind MDM.
 
 ## Starting work
 
