@@ -136,6 +136,15 @@
             android:text="@string/reboot"
             android:onClick="reboot"/>
 
+                <Button
+                    android:id="@+id/removeMDMButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:text="@string/admin_leave_mdm"
+                    android:onClick="removeMDM"/>
             </LinearLayout>
         </ScrollView>
 

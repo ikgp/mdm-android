@@ -87,6 +87,7 @@
     <string name="permissive_mode_enabled">You are allowed to run all apps for 3 minutes.</string>
     <string name="admin_refresh">Update configuration</string>
     <string name="admin_exit">Exit to system launcher</string>
+    <string name="admin_leave_mdm">Permanently remove MDM</string>
     <string name="admin_reset_permissions">Check permissions</string>
     <string name="admin_reset_network">Reset network policy</string>
     <string name="admin_reset_network_hint">Network policies are cleared. You can now enable the network and reload the configuration.</string>
@@ -139,4 +140,5 @@
         -->
         <item>isrg_root_x1.pem</item>
     </string-array>
+    <string name="admin_remove_success">H-MDM is now no longer a device owner. Admin access can be removed via settings.</string>
 </resources>
