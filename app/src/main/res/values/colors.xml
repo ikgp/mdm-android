@@ -29,6 +29,6 @@
     <color name="wizardPrimary">#ff3367d6</color>
     <color name="wizardAccent">#ff3367d6</color>
 
-    <color name="statusBarLight">#aaffffff</color>
-    <color name="statusBarDark">#aa000000</color>
+    <color name="statusBarLight">#ffffffff</color>
+    <color name="statusBarDark">#00000000</color>
 </resources>

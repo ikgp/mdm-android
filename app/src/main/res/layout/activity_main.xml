@@ -106,55 +106,49 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:id="@+id/activity_main_background"/>
+                android:id="@+id/activity_main_background"
+                android:src="@drawable/kant_bg" />
 
             <LinearLayout
                 android:id="@+id/status_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/clock"
-                    android:layout_width="@dimen/status_bar_side_width"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:textSize="@dimen/title_text_size"
-                    />
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:layout_marginBottom="20dp">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:id="@+id/activity_main_title"
-                    android:gravity="center"
                     android:textSize="@dimen/title_text_size"
                     />
-                <com.hmdm.launcher.ui.custom.BatteryStateView
+                <TextView
+                    android:id="@+id/clock"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center"
+                    android:layout_marginTop="90dp"
+                    android:layout_marginBottom="25dp"
+                    android:textColor="#fff"
+                    android:textSize="@dimen/clock_text_size"  android:layout_width="wrap_content"/>
+
+                <!--<com.hmdm.launcher.ui.custom.BatteryStateView
                     android:id="@+id/battery_state"
                     android:layout_width="@dimen/status_bar_side_width"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"/>
+                    android:layout_marginRight="5dp"/>-->
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/activity_main_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/activity_bottom_layout"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:layout_below="@+id/status_header" />
-
-            <RelativeLayout
-                android:id="@+id/activity_bottom_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                >
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:layout_centerHorizontal="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/activity_bottom_line"/>
-            </RelativeLayout>
 
         </RelativeLayout>
 

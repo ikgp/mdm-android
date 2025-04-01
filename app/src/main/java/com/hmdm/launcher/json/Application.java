@@ -179,7 +179,7 @@ public class Application {
     }
 
     public boolean isBottom() {
-        return bottom;
+        return false;
     }
 
     public void setBottom(boolean bottom) {

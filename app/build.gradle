@@ -49,10 +49,10 @@ android {
         multiDexEnabled true
 
         // Default URL of the web panel (scheme + host!)
-        buildConfigField("String", "BASE_URL", "\"https://app.h-mdm.com\"")
+        buildConfigField("String", "BASE_URL", "\"https://h-mdm.ikgp.de\"")
         // URL of the secondary address of your web panel, called when the primary host is not available.
         // Could be equal to the BASE_URL parameter
-        buildConfigField("String", "SECONDARY_BASE_URL", "\"https://app.h-mdm.com\"")
+        buildConfigField("String", "SECONDARY_BASE_URL", "\"https://h-mdm.ikgp.de\"")
         // Relative path of the web panel on the server. Keep it empty if installed in the root
         buildConfigField("String", "SERVER_PROJECT", "\"\"")
         // This parameter manages how the device ID should be set up at first start
@@ -80,7 +80,7 @@ android {
         buildConfigField("Boolean", "ANR_WATCHDOG", "false")
         // If set to true, the server URL will be requested in UI in non-MDM mode even if it is hardcoded in build.gradle
         // See the related "if" statement in MainActivity.java
-        buildConfigField("Boolean", "REQUEST_SERVER_URL", "true")
+        buildConfigField("Boolean", "REQUEST_SERVER_URL", "false")
         // Set to true to debug admin receiver via remote logging
         buildConfigField("Boolean", "DEVICE_ADMIN_DEBUG", "false")
         // Set to true to enable kiosk mode even if the app can't draw over other windows
@@ -130,6 +130,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
     androidTestImplementation('androidx.test.espresso:espresso-core:3.6.1', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

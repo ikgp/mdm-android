@@ -72,6 +72,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.github.anrwatchdog.ANRWatchDog;
+import com.google.android.flexbox.AlignContent;
+import com.google.android.flexbox.AlignItems;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
@@ -437,7 +442,7 @@ public class MainActivity
 
         isBackground = false;
 
-        statusBarUpdater.startUpdating(this, binding.clock, binding.batteryState);
+        statusBarUpdater.startUpdating(this, binding.clock);
 
         // On some Android firmwares, onResume is called before onCreate, so the fields are not initialized
         // Here we initialize all required fields to avoid crash at startup
@@ -1657,7 +1662,7 @@ public class MainActivity
         }
 
         // TODO: Somehow binding is null here which causes a crash. Not sure why this could happen.
-        if ( config.getBackgroundColor() != null ) {
+        /*if ( config.getBackgroundColor() != null ) {
             try {
                 binding.activityMainContentWrapper.setBackgroundColor(Color.parseColor(config.getBackgroundColor()));
             } catch (Exception e) {
@@ -1667,7 +1672,7 @@ public class MainActivity
             }
         } else {
             binding.activityMainContentWrapper.setBackgroundColor( getResources().getColor(R.color.defaultBackground));
-        }
+        }*/
         updateTitle(config);
 
         statusBarUpdater.updateControlsState(config.isDisplayStatus(), isDarkBackground());
@@ -1675,7 +1680,8 @@ public class MainActivity
         if (mainAppListAdapter == null || needRedrawContentAfterReconfigure) {
             needRedrawContentAfterReconfigure = false;
 
-            if ( config.getBackgroundImageUrl() != null && config.getBackgroundImageUrl().length() > 0 ) {
+            Log.i("BACKGROUND_URL", config.getBackgroundImageUrl());
+            /*if ( config.getBackgroundImageUrl() != null && config.getBackgroundImageUrl().length() > 0 ) {
                 if (picasso == null) {
                     // Initialize it once because otherwise it doesn't work offline
                     Picasso.Builder builder = new Picasso.Builder(this);
@@ -1704,6 +1710,7 @@ public class MainActivity
                         @Override
                         public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception)
                         {
+                            Log.e("BACKGROUND_URL", "FAILURE");
                             // On fault, get the background image from the cache
                             // This is a workaround against a bug in Picasso: it doesn't display cached images by default!
                             picasso.load(config.getBackgroundImageUrl())
@@ -1724,7 +1731,7 @@ public class MainActivity
 
             } else {
                 binding.activityMainBackground.setImageDrawable(null);
-            }
+            }*/
 
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
@@ -1737,11 +1744,15 @@ public class MainActivity
             mainAppListAdapter = new MainAppListAdapter(this, this, this);
             mainAppListAdapter.setSpanCount(spanCount);
 
-            binding.activityMainContent.setLayoutManager(new GridLayoutManager(this, spanCount));
+            FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(this, FlexDirection.ROW);
+            binding.activityMainContent.setLayoutManager(layoutManager);
             binding.activityMainContent.setAdapter(mainAppListAdapter);
+            //layoutManager.setAlignContent(AlignContent.CENTER);
+            layoutManager.setJustifyContent(JustifyContent.CENTER);
+            layoutManager.setAlignItems(AlignItems.CENTER);
             mainAppListAdapter.notifyDataSetChanged();
 
-            int bottomAppCount = AppShortcutManager.getInstance().getInstalledAppCount(this, true);
+            /*int bottomAppCount = AppShortcutManager.getInstance().getInstalledAppCount(this, true);
             if (bottomAppCount > 0) {
                 bottomAppListAdapter = new BottomAppListAdapter(this, this, this);
                 bottomAppListAdapter.setSpanCount(spanCount);
@@ -1753,7 +1764,7 @@ public class MainActivity
             } else {
                 bottomAppListAdapter = null;
                 binding.activityBottomLayout.setVisibility(View.GONE);
-            }
+            }*/
         }
         binding.setShowContent(true);
         // We can now sleep, uh
