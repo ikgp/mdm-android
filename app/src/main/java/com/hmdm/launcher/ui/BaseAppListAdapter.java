@@ -4,10 +4,16 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -160,7 +166,29 @@ public class BaseAppListAdapter extends RecyclerView.Adapter<BaseAppListAdapter.
             } else {
                 switch (appInfo.type) {
                     case AppInfo.TYPE_APP:
-                        holder.binding.imageView.setImageDrawable(parentActivity.getPackageManager().getApplicationIcon(appInfo.packageName));
+
+                        Resources resources;
+                        try {
+                            ApplicationInfo info = parentActivity.getPackageManager().getApplicationInfo(appInfo.packageName, PackageManager.GET_META_DATA);
+
+                            resources = parentActivity.getPackageManager().getResourcesForApplication(info);
+                        } catch (PackageManager.NameNotFoundException e) {
+                            resources = null;
+                        }
+
+                        if (resources != null) {
+                            ApplicationInfo info = parentActivity.getPackageManager().getApplicationInfo(appInfo.packageName, PackageManager.GET_META_DATA);
+                            if (info.icon != 0) {
+                                try {
+                                    Drawable icon = resources.getDrawableForDensity(info.icon, DisplayMetrics.DENSITY_XHIGH);
+                                    holder.binding.imageView.setImageDrawable(icon);
+                                } catch (Resources.NotFoundException e) {
+                                    holder.binding.imageView.setImageDrawable(parentActivity.getPackageManager().getApplicationIcon(appInfo.packageName));
+                                }
+                            }
+                        } else {
+                            holder.binding.imageView.setImageDrawable(parentActivity.getPackageManager().getApplicationIcon(appInfo.packageName));
+                        }
                         break;
                     case AppInfo.TYPE_WEB:
                         holder.binding.imageView.setImageDrawable(

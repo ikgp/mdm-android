@@ -1748,7 +1748,7 @@ public class MainActivity
             binding.activityMainContent.setLayoutManager(layoutManager);
             binding.activityMainContent.setAdapter(mainAppListAdapter);
             //layoutManager.setAlignContent(AlignContent.CENTER);
-            layoutManager.setJustifyContent(JustifyContent.CENTER);
+            layoutManager.setJustifyContent(JustifyContent.SPACE_EVENLY);
             layoutManager.setAlignItems(AlignItems.CENTER);
             mainAppListAdapter.notifyDataSetChanged();
 
