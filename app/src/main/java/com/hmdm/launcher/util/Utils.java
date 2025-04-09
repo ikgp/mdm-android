@@ -77,7 +77,7 @@ public class Utils {
 
     // In the open source variant, there are no flavors, so by default it's "opensource"
     public static String getLauncherVariant() {
-        return BuildConfig.FLAVOR == null ? "" : BuildConfig.FLAVOR;
+        return (BuildConfig.FLAVOR == null || BuildConfig.FLAVOR == "opensource") ? "" : BuildConfig.FLAVOR;
     }
 
     // Automatically grant permission to get phone state (for IMEI and serial)
