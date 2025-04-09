@@ -442,7 +442,7 @@ public class MainActivity
 
         isBackground = false;
 
-        statusBarUpdater.startUpdating(this, binding.clock);
+        statusBarUpdater.startUpdating(this, binding.clock, binding.date);
 
         // On some Android firmwares, onResume is called before onCreate, so the fields are not initialized
         // Here we initialize all required fields to avoid crash at startup

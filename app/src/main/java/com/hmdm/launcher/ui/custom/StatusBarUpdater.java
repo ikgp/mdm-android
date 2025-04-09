@@ -18,9 +18,11 @@ import java.util.Locale;
 public class StatusBarUpdater {
     private Context context;
     private TextView clockView;
+    private TextView dateView;
     //private BatteryStateView batteryStateView;
     private final Handler handler = new Handler();
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd. MMMM yyyy", Locale.getDefault());
     private boolean visible = false;
 
     private final Runnable updateRunnable = new Runnable() {
@@ -36,6 +38,8 @@ public class StatusBarUpdater {
     private void updateStatusBar() {
         String currentTime = timeFormat.format(new Date());
         clockView.setText(currentTime);
+        String currentDateLocalized = dateFormat.format(new Date());
+        dateView.setText(currentDateLocalized);
 
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 
@@ -57,9 +61,10 @@ public class StatusBarUpdater {
         batteryStateView.setChargePercent(level * 100 / scale);*/
     }
 
-    public void startUpdating(Context context, TextView clockView/*, BatteryStateView batteryStateView*/) {
+    public void startUpdating(Context context, TextView clockView, TextView dateView /*, BatteryStateView batteryStateView*/) {
         this.context = context;
         this.clockView = clockView;
+        this.dateView = dateView;
         //this.batteryStateView = batteryStateView;
         handler.post(updateRunnable);
     }
@@ -73,6 +78,10 @@ public class StatusBarUpdater {
         if (clockView != null) {
             clockView.setVisibility(visible ? View.VISIBLE : View.GONE);
             clockView.setTextColor(context.getResources().getColor(darkBackground ? R.color.statusBarLight : R.color.statusBarDark));
+        }
+        if (dateView != null) {
+            dateView.setVisibility(visible ? View.VISIBLE : View.GONE);
+            dateView.setTextColor(context.getResources().getColor(darkBackground ? R.color.statusBarLight : R.color.statusBarDark));
         }
         /*if (batteryStateView != null) {
             batteryStateView.setVisibility(visible ? View.VISIBLE : View.GONE);
