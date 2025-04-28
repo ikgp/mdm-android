@@ -1,0 +1,42 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Extract keystore
+      run: echo ${{ secrets.ANDROID_KEYSTORE }} | base64 -d > app/keystore.jks
+
+    - name: Replace keystore PW
+      run: |
+        sed -i "s/\/\*KEYSTORE//g" app/build.gradle
+        sed -i "s/KEYSTORE\*\///g" app/build.gradle
+        KEYSTORE_PASSWORD=${{secrets.ANDROID_KEYSTORE_PW}}
+        ESCAPED_PASSWORD=$(printf '%s\n' "$KEYSTORE_PASSWORD" | sed -e 's/[\/&]/\\&/g')
+        sed -i "s/INSERT_KEYSTORE_PASSWORD_HERE/$ESCAPED_PASSWORD/g" app/build.gradle
+  
+    - name: Build with Gradle
+      run: ./gradlew assembleRelease
+    
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.6.2
+      with:
+        name: mdm.apk
+        path: app/build/outputs/apk/opensource/release/app-opensource-release.apk
+    
