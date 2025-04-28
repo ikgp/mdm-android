@@ -38,7 +38,7 @@ public class StatusBarUpdater {
     private void updateStatusBar() {
         String currentTime = timeFormat.format(new Date());
         clockView.setText(currentTime);
-        String currentDateLocalized = dateFormat.format(new Date());
+        String currentDateLocalized = dateFormat.format(new Date()).toUpperCase();
         dateView.setText(currentDateLocalized);
 
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
