@@ -29,21 +29,27 @@ import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.db.DatabaseHelper;
 import com.hmdm.launcher.db.DownloadTable;
 import com.hmdm.launcher.helper.ConfigUpdater;
+import com.hmdm.launcher.helper.SettingsHelper;
+import com.hmdm.launcher.json.Application;
 import com.hmdm.launcher.json.Download;
 import com.hmdm.launcher.json.PushMessage;
+import com.hmdm.launcher.json.ServerConfig;
 import com.hmdm.launcher.util.InstallUtils;
 import com.hmdm.launcher.util.RemoteLogger;
 import com.hmdm.launcher.util.SystemUtils;
 import com.hmdm.launcher.util.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PushNotificationProcessor {
@@ -97,9 +103,13 @@ public class PushNotificationProcessor {
             // Clear download history
             AsyncTask.execute(() -> clearDownloads(context));
             return;
-        } else if (message.getMessageType().equals(PushMessage.TYPE_SETTINGS)) {
-            // Clear download history
-            AsyncTask.execute(() -> openSettings(context, message.getPayloadJSON()));
+        } else if (message.getMessageType().equals(PushMessage.TYPE_INTENT)) {
+            // Run a system intent (like settings or ACTION_VIEW)
+            AsyncTask.execute(() -> callIntent(context, message.getPayloadJSON()));
+            return;
+        } else if (message.getMessageType().equals(PushMessage.TYPE_GRANT_PERMISSIONS)) {
+            // Grant permissions to apps
+            AsyncTask.execute(() -> grantPermissions(context, message.getPayloadJSON()));
             return;
         }
 
@@ -310,22 +320,91 @@ public class PushNotificationProcessor {
         DownloadTable.deleteAll(db);
     }
 
-    private static void openSettings(Context context, JSONObject payload) {
+    private static void callIntent(Context context, JSONObject payload) {
         if (payload == null) {
-            RemoteLogger.log(context, Const.LOG_WARN, "Open settings failed: no action specified");
+            RemoteLogger.log(context, Const.LOG_WARN, "Calling intent failed: no parameters specified");
             return;
         }
 
         try {
             String action = payload.getString("action");
-            Log.d(Const.LOG_TAG, "Opening settings sheet: " + action);
+            Log.d(Const.LOG_TAG, "Calling intent: " + action);
+            JSONObject extras = payload.optJSONObject("extra");
+            String data = payload.optString("data", null);
             Intent i = new Intent(action);
+            if (data != null) {
+                try {
+                    i.setData(Uri.parse(data));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (extras != null) {
+                Iterator<String> keys = extras.keys();
+                String key;
+                while (keys.hasNext()) {
+                    key = keys.next();
+                    Object value = extras.get(key);
+                    if (value instanceof String) {
+                        i.putExtra(key, (String) value);
+                    } else if (value instanceof Integer) {
+                        i.putExtra(key, ((Integer) value).intValue());
+                    } else if (value instanceof Float) {
+                        i.putExtra(key, ((Float) value).floatValue());
+                    } else if (value instanceof Boolean) {
+                        i.putExtra(key, ((Boolean) value).booleanValue());
+                    }
+                }
+            }
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         } catch (Exception e) {
-            RemoteLogger.log(context, Const.LOG_WARN, "Open settings failed: " + e.getMessage());
+            RemoteLogger.log(context, Const.LOG_WARN, "Calling intent failed: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private static void grantPermissions(Context context, JSONObject payload) {
+        if (!Utils.isDeviceOwner(context) && !BuildConfig.SYSTEM_PRIVILEGES) {
+            RemoteLogger.log(context, Const.LOG_WARN, "Can't auto grant permissions: no device owner");
+        }
+
+        ServerConfig config = SettingsHelper.getInstance(context).getConfig();
+        List<String> apps = null;
+
+        if (payload != null) {
+            apps = new LinkedList<>();
+            String pkg;
+            JSONArray pkgs = payload.optJSONArray("pkg");
+            if (pkgs != null) {
+                for (int i = 0; i < pkgs.length(); i++) {
+                    pkg = pkgs.optString(i);
+                    if (pkg != null) {
+                        apps.add(pkg);
+                    }
+                }
+            } else {
+                pkg = payload.optString("pkg");
+                if (pkg != null) {
+                    apps.add(pkg);
+                }
+            }
+        } else {
+            // By default, grant permissions to all packagee having an URL
+            apps = new LinkedList<>();
+            List<Application> configApps = config.getApplications();
+            for (Application app: configApps) {
+                if (Application.TYPE_APP.equals(app.getType()) &&
+                    app.getUrl() != null && app.getPkg() != null) {
+                    apps.add(app.getPkg());
+                }
+            }
+        }
+
+        for (String app: apps) {
+            Utils.autoGrantRequestedPermissions(context, app,
+                    config.getAppPermissions(), false);
         }
     }
 }
