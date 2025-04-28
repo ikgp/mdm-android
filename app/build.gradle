@@ -103,7 +103,7 @@ android {
             storeFile file("keystore.jks")
             storePassword "INSERT_KEYSTORE_PASSWORD_HERE"
             keyAlias "key0"
-            keyPassword "password"
+            keyPassword "INSERT_KEYSTORE_PASSWORD_HERE"
         }
     } KEYSTORE*/
     buildTypes {
