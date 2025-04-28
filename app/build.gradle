@@ -98,6 +98,14 @@ android {
         // API key for the authorization of privileged library requests
         buildConfigField("String", "LIBRARY_API_KEY", "\"changeme-8gzk321W\"")
     }
+    /*KEYSTORE signingConfigs {
+        release {
+            storeFile file("keystore.jks")
+            storePassword "INSERT_KEYSTORE_PASSWORD_HERE"
+            keyAlias "key0"
+            keyPassword "password"
+        }
+    } KEYSTORE*/
     buildTypes {
         release {
             minifyEnabled false
