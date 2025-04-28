@@ -111,6 +111,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable false
+            /*KEYSTORE signingConfig signingConfigs.release KEYSTORE*/
         }
         debug {
             minifyEnabled false
