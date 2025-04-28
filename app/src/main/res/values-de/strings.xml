@@ -34,7 +34,7 @@
     <string name="dialog_root_message">Sie benötigen einen ROOT-Zugriff</string>
     <string name="main_application_start">Anwendung starten</string>
     <string name="main_app_installing">Installieren der Anwendung</string>
-    <string name="main_app_downloading">Anwendung herunterladen</string>
+    <string name="main_app_downloading">Anwendung wird heruntergeladen:</string>
     <string name="main_app_downloading_error">Fehler beim Herunterladen des Pakets</string>
     <string name="main_app_removing">Anwendung deinstallieren</string>
     <string name="main_file_downloading">Datei herunterladen</string>
