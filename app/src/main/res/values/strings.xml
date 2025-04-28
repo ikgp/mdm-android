@@ -140,6 +140,6 @@
         -->
         <item>isrg_root_x1.pem</item>
     </string-array>
-    <string name="admin_remove_success">H-MDM is now no longer a device owner. Admin access can be removed via settings.</string>
+    <string name="admin_remove_success">%s is now no longer a device administrator and can now be removed.</string>
     <string name="built_by">Built by Aaron Dewes.</string>
 </resources>

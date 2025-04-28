@@ -241,7 +241,7 @@ public class AdminActivity extends BaseActivity {
         try {
             DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
             devicePolicyManager.clearDeviceOwnerApp(BuildConfig.APPLICATION_ID);
-            Toast.makeText(this, R.string.admin_remove_success, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.admin_remove_success, getString(R.string.white_app_name)), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Log.e(Const.LOG_TAG, String.valueOf(e));
         }

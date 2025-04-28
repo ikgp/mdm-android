@@ -126,5 +126,6 @@
     <string name="work_profile_message">Dieses Gerät erhält ein verwaltetes Arbeitsprofil, das Ihrer Organisation gehört. Das Arbeitsprofil ist von Ihrem privaten Profil getrennt und Sie können jederzeit zwischen den Profilen wechseln.</string>
     <string name="overlays_not_supported">Leider werden Overlays von Ihrem Gerät nicht unterstützt.</string>
     <string name="admin_not_supported">Ihr Gerät verfügt über keine Geräteadministratoroption. Klicken Sie auf Überspringen, um fortzufahren.</string>
+    <string name="admin_remove_success">%s ist nun kein Geräteadministrator mehr und kann entfernt werden.</string>
     <string name="built_by">Gebaut von Aaron Dewes.</string>
 </resources>
