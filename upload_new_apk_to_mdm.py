@@ -81,10 +81,10 @@ file_path = (
 resp = client.put(
     "https://h-mdm.ikgp.de/rest/private/applications/versions",
     json={
-        "id": 10030,
+        "id": id,
         "applicationId": 18,
         "version": commit,
-        "versionCode": 15202,
+        "versionCode": versionCode,
         "url": file_path,
         "split": False,
         "urlArmeabi": None,
@@ -98,6 +98,8 @@ resp = client.put(
         "filePath": None,
     },
 )
+
+print(resp.text)
 
 payload = {
     "applicationVersionId": id,
