@@ -67,6 +67,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -1660,6 +1661,14 @@ public class MainActivity
                 openDefaultLauncher();
             }
         }
+
+        // Get screen resolution
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height  = getResources().getDisplayMetrics().heightPixels;
+        if (width > 1920 || height > 1080) {
+            binding.activityMainBackground.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.kant_bg, null));
+        }
+
 
         // TODO: Somehow binding is null here which causes a crash. Not sure why this could happen.
         /*if ( config.getBackgroundColor() != null ) {

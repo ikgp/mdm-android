@@ -107,7 +107,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:id="@+id/activity_main_background"
-                android:src="@drawable/kant_bg" />
+                android:src="@drawable/kant_bg_1080" />
 
             <LinearLayout
                 android:id="@+id/status_header"
