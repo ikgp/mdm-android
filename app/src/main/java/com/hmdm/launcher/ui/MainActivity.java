@@ -1663,9 +1663,7 @@ public class MainActivity
         }
 
         // Get screen resolution
-        int width = getResources().getDisplayMetrics().widthPixels;
-        int height  = getResources().getDisplayMetrics().heightPixels;
-        if (width > 1920 || height > 1080) {
+        if (getResources().getDisplayMetrics().widthPixels > 1920 || getResources().getDisplayMetrics().heightPixels > 1080) {
             binding.activityMainBackground.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.kant_bg, null));
         }
 
