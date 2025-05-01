@@ -40,3 +40,6 @@ jobs:
         name: mdm.apk
         path: app/build/outputs/apk/opensource/release/app-opensource-release.apk
     
+    - name: Upload to MDM
+      run: |
+        python3 upload_new_apk_to_mdm.py "${{ secrets.MDM_USERNAME }}" "${{ secrets.MDM_PASSWORD }}" app/build/outputs/apk/opensource/release/app-opensource-release.apk $(git rev-parse --short HEAD)
