@@ -45,31 +45,15 @@ with open(apk_path, "rb") as f:
             "application/vnd.android.package-archive",
         ),
     }
-    resp = client.post(
-        "https://h-mdm.ikgp.de/rest/private/web-ui-files/raw", files=files
-    )
+    resp = client.post("https://h-mdm.ikgp.de/rest/private/web-ui-files", files=files)
     if resp.status_code != 200:
         print(f"File upload failed: {resp.status_code} {resp.text}")
         sys.exit(1)
-    path = resp.json()["data"]["serverPath"]
+    data = resp.json()["data"]
+    path = data["serverPath"]
+    realVersion = data["fileDetails"]["version"]
+    versionCode = data["fileDetails"]["versionCode"]
 
-# POST to https://h-mdm.ikgp.de/rest/private/web-ui-files/move with the path as JSON
-resp = client.post(
-    "https://h-mdm.ikgp.de/rest/private/web-ui-files/move",
-    json={
-        "path": path,
-    },
-)
-
-# TODO: This gives us a 500, but works anyway
-file_path = (
-    "https://h-mdm.nirvati.org/files/"
-    + os.path.basename(apk_path).removesuffix(".apk")
-    + "-"
-    + commit
-    + ".apk"
-)
-print(f"File uploaded to{file_path}")
 
 resp = client.put(
     "https://h-mdm.ikgp.de/rest/private/applications/versions",
@@ -77,16 +61,46 @@ resp = client.put(
         "system": False,
         "applicationId": 18,
         "arch": None,
-        "url": file_path,
+        "pkg": "com.hmdm.launcher",
+        "name": "MDM Agent",
         "version": commit,
-        "autoUpdate": True,
+        "versionCode": versionCode,
+        "filePath": path,
     },
 )
-data = resp.json()
-new_id = data["data"]["id"]
+
+id = resp.json()["data"]["id"]
+file_path = (
+    "https://h-mdm.ikgp.de/files/"
+    + os.path.basename(apk_path).removesuffix(".apk")
+    + "-"
+    + commit
+    + ".apk"
+)
+
+resp = client.put(
+    "https://h-mdm.ikgp.de/rest/private/applications/versions",
+    json={
+        "id": 10030,
+        "applicationId": 18,
+        "version": commit,
+        "versionCode": 15202,
+        "url": file_path,
+        "split": False,
+        "urlArmeabi": None,
+        "urlArm64": None,
+        "deletionProhibited": False,
+        "commonApplication": False,
+        "system": False,
+        "type": "app",
+        "apkHash": None,
+        "arch": None,
+        "filePath": None,
+    },
+)
 
 payload = {
-    "applicationVersionId": new_id,
+    "applicationVersionId": id,
     "configurations": [
         {
             "id": None,
@@ -95,8 +109,8 @@ payload = {
             "configurationName": "Entwicklermodus",
             "applicationId": 18,
             "applicationName": "MDM Agent",
-            "applicationVersionId": new_id,
-            "versionText": new_id,
+            "applicationVersionId": id,
+            "versionText": commit,
             "showIcon": True,
             "screenOrder": None,
             "keyCode": None,
@@ -115,8 +129,8 @@ payload = {
             "configurationName": "Standard-Tafel",
             "applicationId": 18,
             "applicationName": "MDM Agent",
-            "applicationVersionId": new_id,
-            "versionText": new_id,
+            "applicationVersionId": id,
+            "versionText": commit,
             "showIcon": False,
             "screenOrder": None,
             "keyCode": None,
@@ -131,6 +145,9 @@ payload = {
     ],
 }
 
-client.post("https://h-mdm.ikgp.de/rest/private/applications/version/configurations", json=payload)
+client.post(
+    "https://h-mdm.ikgp.de/rest/private/applications/version/configurations",
+    json=payload,
+)
 
 print(resp.text)
