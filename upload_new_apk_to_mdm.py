@@ -147,6 +147,8 @@ payload = {
     ],
 }
 
+print(payload)
+
 client.post(
     "https://h-mdm.ikgp.de/rest/private/applications/version/configurations",
     json=payload,
