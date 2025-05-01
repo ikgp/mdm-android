@@ -36,7 +36,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 35
         versionCode 15204
-        versionName "6.20.4"
+        versionName "6.20.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         dataBinding {
             enabled = true
