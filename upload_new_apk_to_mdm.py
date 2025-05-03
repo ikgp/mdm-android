@@ -63,7 +63,7 @@ resp = client.put(
         "arch": None,
         "pkg": "com.hmdm.launcher",
         "name": "MDM Agent",
-        "version": commit,
+        "version": realVersion,
         "versionCode": versionCode,
         "filePath": path,
     },
