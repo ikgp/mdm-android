@@ -14,6 +14,8 @@ import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.helper.SettingsHelper;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -94,7 +96,16 @@ public class SystemUtils {
             }
         } else if (BuildConfig.DEVICE_ID_CHOICE.equals("mac")) {
             deviceId = DeviceInfoProvider.getMacAddress();
+        } else if (BuildConfig.DEVICE_ID_CHOICE.equals("file")) {
+            try {
+            // Load the device ID from the file at /storage/emulated/0/hmdm_device_id
+            deviceId = FileUtils.readFileToString(
+                    new java.io.File("/storage/emulated/0/hmdm_device_id"),"UTF-8");
+            } catch (Exception e) {
+                Log.e(Const.LOG_TAG, "Could not read device ID from file", e);
+            }
         }
+
 
         if (deviceId == null || deviceId.length() == 0) {
             return false;

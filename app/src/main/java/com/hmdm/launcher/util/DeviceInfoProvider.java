@@ -44,10 +44,13 @@ import com.hmdm.launcher.json.DeviceInfo;
 import com.hmdm.launcher.json.RemoteFile;
 import com.hmdm.launcher.pro.ProUtils;
 
+import org.lsposed.hiddenapibypass.HiddenApiBypass;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -294,17 +297,27 @@ public class DeviceInfoProvider {
 
     @SuppressLint( { "MissingPermission" } )
     public static String getImsi(Context context, int slot) {
+        TelephonyManager telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = null;
-        try {
-            TelephonyManager telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-            // This method is hidden, use reflection
-            // Thanks to https://stackoverflow.com/questions/36902916/subscriptionmanager-to-read-imsi-for-dual-sim-devices-ruuning-android-5-1
-            Class c = Class.forName("android.telephony.TelephonyManager");
-            Method m = c.getMethod("getSubscriberId", new Class[] {int.class});
-            Object o = m.invoke(telephonyManager, new Object[]{slot});
-            imsi = (String)o;
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            try {
+                Object result = HiddenApiBypass.invoke(TelephonyManager.class, telephonyManager, "getSubscriberId", slot);
+                if (result != null) {
+                    imsi = (String) result;
+                }
+            }  catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {            // This method is hidden, use reflection
+                // Thanks to https://stackoverflow.com/questions/36902916/subscriptionmanager-to-read-imsi-for-dual-sim-devices-ruuning-android-5-1
+                Class c = Class.forName("android.telephony.TelephonyManager");
+                Method m = c.getMethod("getSubscriberId", new Class[] {int.class});
+                Object o = m.invoke(telephonyManager, new Object[]{slot});
+                imsi = (String)o;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return imsi;
     }

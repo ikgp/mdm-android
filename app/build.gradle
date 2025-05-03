@@ -59,7 +59,8 @@ android {
         // "user" - user enters it manually
         // "suggest" - user can select among few predefined values (IMEI, serial, MAC)
         // "imei", "serial", "mac" - set the selected parameter as device ID without user interaction
-        buildConfigField("String", "DEVICE_ID_CHOICE", "\"user\"")
+        // "file" - read the device ID from the /storage/emulated/0/hmdm_device_id file
+        buildConfigField("String", "DEVICE_ID_CHOICE", "\"file\"")
         // Enables Push notifications. Setting it to false will stop automatic configuration updates after changing it on the server.
         buildConfigField("Boolean", "ENABLE_PUSH", "true")
         // MQTT port for Push notifications
@@ -90,7 +91,7 @@ android {
         buildConfigField("Boolean", "MQTT_SERVICE_FOREGROUND", "true")
         // Set Headwind MDM to default launcher at early time of the first start
         // to prevent the user from clicking Home and stop initializing Headwind MDM
-        buildConfigField("Boolean", "SET_DEFAULT_LAUNCHER_EARLY", "false")
+        buildConfigField("Boolean", "SET_DEFAULT_LAUNCHER_EARLY", "true")
         // Adjust application selection on TV boxes
         buildConfigField("Boolean", "SELECTED_ITEM_BY_CLICK", "false")
         // Adjust application selection on TV boxes
@@ -146,7 +147,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.google.android.material:material:1.13.0-alpha12'
+    implementation 'com.google.android.material:material:1.13.0-alpha13'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
     // MQTT messaging
@@ -166,7 +167,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
 
     // Worker
-    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'androidx.work:work-runtime:2.10.1'
 
     implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
     implementation 'com.google.zxing:core:3.5.3'
@@ -175,4 +176,7 @@ dependencies {
     // JAX-B dependencies for JDK 9+
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
     implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.5'
+
+    // Properly accessing hidden APIs
+    implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:6.1'
 }
