@@ -113,7 +113,7 @@ public class BaseActivity extends AppCompatActivity {
         // Don't use this by default because the device ID must not be bound to IMEI:
         // if it's bound to IMEI, it becomes difficult to replace the device
         List<String> variantsList = new ArrayList<>();
-        if (!BuildConfig.DEVICE_ID_CHOICE.equals("user")) {
+        if (!BuildConfig.DEVICE_ID_CHOICE.equals("user") && !BuildConfig.DEVICE_ID_CHOICE.equals("file")) {
             Utils.autoGrantPhonePermission(this);
             String imei = DeviceInfoProvider.getImei(this);
             if (imei != null) {
