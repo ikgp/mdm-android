@@ -73,7 +73,7 @@ public final class LastChristmasBeepPlayer {
     private static final double B6 = 1975.53;
 
     // --- Main melody ---
-    private static final double[][] MELODY = { {G4, 400}, {A4, 400}, {G4, 400}, {E4, 600}, {G4, 400}, {A4, 400}, {G4, 400}, {E4, 600}, {D4, 400}, {E4, 400}, {D4, 400}, {A4, 600}, {B4, 400}, {C5, 400}, {B4, 400}, {G4, 800}, {G4, 400}, {A4, 400}, {G4, 400}, {E4, 600}, {G4, 400}, {A4, 400}, {G4, 400}, {E4, 600}, {D4, 400}, {E4, 400}, {D4, 400}, {A4, 600}, {B4, 400}, {C5, 400}, {B4, 400}, {G4, 800} };
+private static final double[][] MELODY = { {FS4, 400}, {A4, 400}, {A4, 400}, {A4, 400}, {GS4, 400}, {FS4, 400}, {E4, 400}, {D4, 600}, {D4, 400}, {E4, 400}, {FS4, 400}, {FS4, 400}, {FS4, 600}, {E4, 400}, {D4, 400}, {B3, 400}, {A3, 600}, {A3, 400}, {B3, 400}, {D4, 400}, {D4, 400}, {D4, 400}, {CS4, 600}, {B3, 400}, {A3, 400}, {FS3, 400}, {GS3, 400}, {A3, 400}, {A3, 800} };
 
     // --- Singleton boilerplate ---
     private LastChristmasBeepPlayer() {
