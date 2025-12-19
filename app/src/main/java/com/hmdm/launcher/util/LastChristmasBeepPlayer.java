@@ -36,41 +36,16 @@ public final class LastChristmasBeepPlayer {
     private volatile boolean playing = false;
 
     // --- Notes (Hz) ---
-    // Lower octave
-    private static final double C3 = 130.81;
-    private static final double D3 = 146.83;
-    private static final double E3 = 164.81;
-    private static final double F3 = 174.61;
-    private static final double G3 = 196.00;
-    private static final double A3 = 220.00;
-    private static final double B3 = 246.94;
-
-    // Middle octave
-    private static final double C4 = 261.63;
-    private static final double D4 = 293.66;
-    private static final double E4 = 329.63;
-    private static final double F4 = 349.23;
-    private static final double G4 = 392.00;
-    private static final double A4 = 440.00;
-    private static final double B4 = 493.88;
-
-    // Higher octave
-    private static final double C5 = 523.25;
-    private static final double D5 = 587.33;
-    private static final double E5 = 659.25;
-    private static final double F5 = 698.46;
-    private static final double G5 = 783.99;
-    private static final double A5 = 880.00;
-    private static final double B5 = 987.77;
-
-    // Even higher octave
-    private static final double C6 = 1046.50;
-    private static final double D6 = 1174.66;
-    private static final double E6 = 1318.51;
-    private static final double F6 = 1396.91;
-    private static final double G6 = 1567.98;
-    private static final double A6 = 1760.00;
-    private static final double B6 = 1975.53;
+private static final double A3 = 220.0;
+private static final double A4 = 440.0;
+private static final double B3 = 246.94165062806206;
+private static final double CS4 = 277.1826309768721;
+private static final double D4 = 293.6647679174076;
+private static final double E4 = 329.6275569128699;
+private static final double FS3 = 184.9972113558172;
+private static final double FS4 = 369.9944227116344;
+private static final double GS3 = 207.65234878997256;
+private static final double GS4 = 415.3046975799451;
 
     // --- Main melody ---
 private static final double[][] MELODY = { {FS4, 400}, {A4, 400}, {A4, 400}, {A4, 400}, {GS4, 400}, {FS4, 400}, {E4, 400}, {D4, 600}, {D4, 400}, {E4, 400}, {FS4, 400}, {FS4, 400}, {FS4, 600}, {E4, 400}, {D4, 400}, {B3, 400}, {A3, 600}, {A3, 400}, {B3, 400}, {D4, 400}, {D4, 400}, {D4, 400}, {CS4, 600}, {B3, 400}, {A3, 400}, {FS3, 400}, {GS3, 400}, {A3, 400}, {A3, 800} };
