@@ -401,11 +401,11 @@ public class BaseActivity extends AppCompatActivity {
         }
         dialogDeviceInfoBinding.setImei(imei);
 
-        String hideIdsStr = settingsHelper.getAppPreference(getPackageName(), "hide_ids");
+        /*String hideIdsStr = settingsHelper.getAppPreference(getPackageName(), "hide_ids");
         if ("1".equals(hideIdsStr) || "true".equalsIgnoreCase(hideIdsStr)) {
             dialogDeviceInfoBinding.imeiLayout.setVisibility(View.GONE);
             dialogDeviceInfoBinding.serialLayout.setVisibility(View.GONE);
-        }
+        }*/
 
         dialogDeviceInfoBinding.setDeviceId(SettingsHelper.getInstance(this).getDeviceId());
         dialogDeviceInfoBinding.setVersion(BuildConfig.VERSION_NAME + "-" + Utils.getLauncherVariant());
