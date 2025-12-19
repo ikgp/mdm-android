@@ -38,6 +38,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -79,6 +80,7 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.hmdm.launcher.AdminReceiver;
 import com.hmdm.launcher.BuildConfig;
 import com.hmdm.launcher.Const;
 import com.hmdm.launcher.R;
@@ -105,6 +107,7 @@ import com.hmdm.launcher.json.ServerConfig;
 import com.hmdm.launcher.pro.ProUtils;
 import com.hmdm.launcher.pro.service.CheckForegroundAppAccessibilityService;
 import com.hmdm.launcher.pro.service.CheckForegroundApplicationService;
+import com.hmdm.launcher.receiver.ScreenOffReceiver;
 import com.hmdm.launcher.server.ServerServiceKeeper;
 import com.hmdm.launcher.server.UnsafeOkHttpClient;
 import com.hmdm.launcher.service.LocationService;
@@ -231,16 +234,24 @@ public class MainActivity
                     updateConfig(false);
                     break;
                 case Const.ACTION_HIDE_SCREEN:
+                    RemoteLogger.log(MainActivity.this, Const.LOG_DEBUG, "Received ACTION_HIDE_SCREEN for package: " + intent.getStringExtra(Const.PACKAGE_NAME));
                     ServerConfig serverConfig = SettingsHelper.getInstance(MainActivity.this).getConfig();
                     if (serverConfig.getLock() != null && serverConfig.getLock()) {
                         // Device is locked by the server administrator!
+                        RemoteLogger.log(MainActivity.this, Const.LOG_DEBUG, "Showing lock screen due to server lock");
                         showLockScreen();
                     } else if ( applicationNotAllowed != null &&
                             (!ProUtils.kioskModeRequired(MainActivity.this) || !ProUtils.isKioskAppInstalled(MainActivity.this)) ) {
+                        RemoteLogger.log(MainActivity.this, Const.LOG_INFO, "Showing 'package not allowed' overlay for " + intent.getStringExtra(Const.PACKAGE_NAME));
                         TextView textView = ( TextView ) applicationNotAllowed.findViewById( R.id.package_id );
                         textView.setText(intent.getStringExtra(Const.PACKAGE_NAME));
 
                         applicationNotAllowed.setVisibility( View.VISIBLE );
+                        // This ensures requestFocus() happens after layout, when it's safe and guaranteed to work.
+                        applicationNotAllowed.post(() -> {
+                            View button = applicationNotAllowed.findViewById(R.id.layout_application_not_allowed_continue);
+                            button.requestFocus();
+                        });
                         handler.postDelayed( new Runnable() {
                             @Override
                             public void run() {
@@ -282,10 +293,17 @@ public class MainActivity
                         RemoteLogger.log(MainActivity.this, Const.LOG_INFO, "Exit kiosk by admin command");
                         showContent(config);
                     }
+                    break;
+
+                case Const.ACTION_ADMIN_PANEL:
+                    openAdminPanel();
+                    break;
             }
 
         }
     };
+
+    private final BroadcastReceiver screenOffReceiver = new ScreenOffReceiver();
 
     private final BroadcastReceiver stateChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -314,7 +332,10 @@ public class MainActivity
         }
     };
 
+    private GradientDrawable selectedManageButtonBorder = new GradientDrawable();
     private ImageView exitView;
+    private long exitFirstTapTime = 0;
+    private int exitTapCount = 0;
     private ImageView infoView;
     private ImageView updateView;
 
@@ -366,40 +387,54 @@ public class MainActivity
             anrWatchDog = new ANRWatchDog();
             anrWatchDog.start();
         }
-        Initializer.init(this);
 
         // Prevent showing the lock screen during the app download/installation
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        binding = DataBindingUtil.setContentView( this, R.layout.activity_main );
-        binding.setMessage( getString( R.string.main_start_preparations ) );
-        binding.setLoading( true );
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setMessage(getString( R.string.main_start_preparations));
+        binding.loading.setVisibility(View.VISIBLE);
 
-        settingsHelper = SettingsHelper.getInstance( this );
-        preferences = getSharedPreferences( Const.PREFERENCES, MODE_PRIVATE );
+        settingsHelper = SettingsHelper.getInstance(this);
+        preferences = getSharedPreferences(Const.PREFERENCES, MODE_PRIVATE);
+
+        if ("".equals(settingsHelper.getDeviceId()) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            AdminReceiver.updateSettingsFromFile(this);
+        }
 
         settingsHelper.setAppStartTime(System.currentTimeMillis());
 
-        // Try to start services in onCreate(), this may fail, we will try again on each onResume.
-        startServicesWithRetry();
+        Initializer.init(this, () -> {
 
-        initReceiver();
+            // Try to start services in onCreate(), this may fail, we will try again on each onResume.
+            startServicesWithRetry();
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            registerReceiver(stateChangeReceiver, intentFilter, Context.RECEIVER_EXPORTED);
-        } else {
-            registerReceiver(stateChangeReceiver, intentFilter);
-        }
+            initReceiver();
 
-        if (!getIntent().getBooleanExtra(Const.RESTORED_ACTIVITY, false)) {
-            startAppsAtBoot();
-        }
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+            intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                registerReceiver(stateChangeReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+            } else {
+                registerReceiver(stateChangeReceiver, intentFilter);
+            }
 
-        settingsHelper.setMainActivityRunning(true);
+            intentFilter = new IntentFilter();
+            intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                registerReceiver(screenOffReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+            } else {
+                registerReceiver(screenOffReceiver, intentFilter);
+            }
+
+            if (!getIntent().getBooleanExtra(Const.RESTORED_ACTIVITY, false)) {
+                startAppsAtBoot();
+            }
+
+            settingsHelper.setMainActivityRunning(true);
+        });
     }
 
     // On some Android firmwares, onResume is called before onCreate, so the fields are not initialized
@@ -408,7 +443,7 @@ public class MainActivity
         if (binding == null) {
             binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
             binding.setMessage(getString(R.string.main_start_preparations));
-            binding.setLoading(true);
+            binding.loading.setVisibility(View.VISIBLE);
         }
 
         if (settingsHelper == null) {
@@ -434,6 +469,7 @@ public class MainActivity
         intentFilter.addAction(Const.ACTION_EXIT);
         intentFilter.addAction(Const.ACTION_POLICY_VIOLATION);
         intentFilter.addAction(Const.ACTION_EXIT_KIOSK);
+        intentFilter.addAction(Const.ACTION_ADMIN_PANEL);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
     }
 
@@ -443,11 +479,11 @@ public class MainActivity
 
         isBackground = false;
 
-        statusBarUpdater.startUpdating(this, binding.clock, binding.date);
-
         // On some Android firmwares, onResume is called before onCreate, so the fields are not initialized
         // Here we initialize all required fields to avoid crash at startup
         reinitApp();
+
+        statusBarUpdater.startUpdating(this, binding.clock, binding.batteryState);
 
         startServicesWithRetry();
 
@@ -597,7 +633,8 @@ public class MainActivity
         if (preferences.getInt(Const.PREFERENCES_USAGE_STATISTICS, Const.PREFERENCES_OFF) == Const.PREFERENCES_ON) {
             startService(new Intent(MainActivity.this, CheckForegroundApplicationService.class));
         }
-        if (preferences.getInt(Const.PREFERENCES_ACCESSIBILITY_SERVICE, Const.PREFERENCES_OFF) == Const.PREFERENCES_ON) {
+        if (BuildConfig.USE_ACCESSIBILITY &&
+            preferences.getInt(Const.PREFERENCES_ACCESSIBILITY_SERVICE, Const.PREFERENCES_OFF) == Const.PREFERENCES_ON) {
             startService(new Intent(MainActivity.this, CheckForegroundAppAccessibilityService.class));
         }
         startService(new Intent(MainActivity.this, StatusControlService.class));
@@ -607,6 +644,7 @@ public class MainActivity
         startService(new Intent(MainActivity.this, PluginApiService.class));
 
         // Send pending logs to server
+        RemoteLogger.resetState();
         RemoteLogger.sendLogsToServer(MainActivity.this);
     }
 
@@ -823,7 +861,7 @@ public class MainActivity
         int accessibilityService = preferences.getInt( Const.PREFERENCES_ACCESSIBILITY_SERVICE, - 1 );
         // Check the same condition as for usage stats here
         // because accessibility is used as a secondary condition when usage stats is not available
-        if (ProUtils.isPro() && accessibilityService == -1 && needRequestUsageStats()) {
+        if (ProUtils.isPro() && BuildConfig.USE_ACCESSIBILITY && accessibilityService == -1 && needRequestUsageStats()) {
             if ( checkAccessibilityService() ) {
                 preferences.
                         edit().
@@ -983,7 +1021,7 @@ public class MainActivity
                 // We shouldn't get looping here because autoSetDeviceId cannot return true if deviceId.length == 0
                 startLauncher();
             }
-        } else if ( ! configInitialized ) {
+        } else if (!configInitialized) {
             Log.i(Const.LOG_TAG, "Updating configuration in startLauncher()");
             boolean userInteraction = true;
             boolean integratedProvisioningFlow = settingsHelper.isIntegratedProvisioningFlow();
@@ -1114,7 +1152,7 @@ public class MainActivity
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.type = Utils.OverlayWindowType();
         layoutParams.gravity = Gravity.RIGHT;
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL|WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 
         layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
         layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -1236,6 +1274,12 @@ public class MainActivity
         manageButton.setImageResource(isDarkBackground() ? imageResource : imageResourceBlack);
         view.addView(manageButton);
 
+        selectedManageButtonBorder.setColor(0); // transparent background
+        selectedManageButtonBorder.setStroke(2, isDarkBackground() ? 0xa0ffffff : 0xa0000000); // white or black border with some transparency
+        manageButton.setOnFocusChangeListener((v, hasFocus) -> {
+            v.setBackground(hasFocus ? selectedManageButtonBorder : null);
+        });
+
         try {
             RelativeLayout root = findViewById(R.id.activity_main);
             root.addView(view);
@@ -1248,6 +1292,23 @@ public class MainActivity
             return;
         }
         exitView = createManageButton(R.drawable.ic_vpn_key_opaque_24dp, R.drawable.ic_vpn_key_black_24dp, 0);
+        exitView.setOnClickListener(view -> {
+            if (view.hasFocus()) {
+                // 6 subsequent taps within 3 secs open the hidden password view
+                long now = System.currentTimeMillis();
+                if (exitFirstTapTime < now - 3000) {
+                    exitFirstTapTime = now;
+                    exitTapCount = 1;
+                } else {
+                    exitTapCount++;
+                    if (exitTapCount >= 6) {
+                        exitFirstTapTime = 0;
+                        exitTapCount = 0;
+                        createAndShowEnterPasswordDialog();
+                    }
+                }
+            }
+        });
         exitView.setOnLongClickListener(this);
     }
 
@@ -1607,7 +1668,6 @@ public class MainActivity
             // Next time we're here after we returned from the Android settings through onResume()
             return;
         }
-
         applyLatePolicies(config);
 
         sendDeviceInfoAfterReconfigure();
@@ -1773,6 +1833,7 @@ public class MainActivity
                 binding.activityBottomLayout.setVisibility(View.GONE);
             }*/
         }
+        binding.loading.setVisibility(View.GONE);
         binding.setShowContent(true);
         // We can now sleep, uh
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -1977,6 +2038,7 @@ public class MainActivity
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
             unregisterReceiver(stateChangeReceiver);
+            unregisterReceiver(screenOffReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2148,10 +2210,19 @@ public class MainActivity
             Uri uri = Uri.fromParts("package", this.getPackageName(), null);
             intent.setData(uri);
             startActivity(intent);
-        }catch (Exception e){
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-            startActivity(intent);
+        } catch (Exception e) {
+            try {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(intent);
+            } catch (Exception e1) {
+                Toast.makeText(this, R.string.manage_storage_not_supported, Toast.LENGTH_LONG).show();
+                preferences.
+                        edit().
+                        putInt( Const.PREFERENCES_MANAGE_STORAGE, Const.PREFERENCES_OFF ).
+                        commit();
+                checkAndStartLauncher();
+            }
         }
     }
 
@@ -2455,17 +2526,21 @@ public class MainActivity
                         equals( masterPassword ) ) {
                     dismissDialog(enterPasswordDialog);
                     dialogEnterPasswordBinding.setError( false );
-                    if (ProUtils.kioskModeRequired(MainActivity.this)) {
-                        ProUtils.unlockKiosk(MainActivity.this);
-                    }
-                    RemoteLogger.log(MainActivity.this, Const.LOG_INFO, "Administrator panel opened");
-                    startActivity( new Intent( MainActivity.this, AdminActivity.class ) );
+                    openAdminPanel();
                 } else {
                     dialogEnterPasswordBinding.setError( true );
                 }
             }
         };
         task.execute();
+    }
+
+    private void openAdminPanel() {
+        if (ProUtils.kioskModeRequired(MainActivity.this)) {
+            ProUtils.unlockKiosk(MainActivity.this);
+        }
+        RemoteLogger.log(MainActivity.this, Const.LOG_INFO, "Administrator panel opened");
+        startActivity( new Intent( MainActivity.this, AdminActivity.class ) );
     }
 
     private void createAndShowUnknownSourcesDialog() {
@@ -2570,7 +2645,6 @@ public class MainActivity
     public boolean onLongClick( View v ) {
         createAndShowEnterPasswordDialog();
         return true;
-
     }
 
     @Override
@@ -2583,9 +2657,10 @@ public class MainActivity
                 return;
             }
             Log.i(Const.LOG_TAG, "updating config on request");
+            binding.loading.setVisibility(View.VISIBLE);
             binding.setShowContent(false);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            updateConfig( true );
+            updateConfig(true);
         }
     }
 

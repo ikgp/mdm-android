@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
@@ -30,6 +31,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -136,6 +138,15 @@ public class BaseActivity extends AppCompatActivity {
         enterDeviceIdDialogBinding.showDeviceIdQrCode.setVisibility(View.VISIBLE);
 
         enterDeviceIdDialog.setContentView( enterDeviceIdDialogBinding.getRoot() );
+        enterDeviceIdDialog.setOnShowListener(dialog -> {
+            enterDeviceIdDialogBinding.deviceId.requestFocus();
+        });
+        enterDeviceIdDialogBinding.deviceId.setOnFocusChangeListener((view, hasFocus) -> {
+            if (hasFocus) {
+                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
         enterDeviceIdDialog.show();
     }
 
@@ -220,8 +231,8 @@ public class BaseActivity extends AppCompatActivity {
             createOptions.setCustomer(extras.optString(Const.QR_CUSTOMER_ATTR, null));
             createOptions.setConfiguration(extras.optString(Const.QR_CONFIG_ATTR, null));
             createOptions.setGroups(extras.optString(Const.QR_GROUP_ATTR, null));
-            if (createOptions.getCustomer() != createOptions.getCustomer()) {
-                Log.d(Const.LOG_TAG, "Customer: " + serverProject);
+            if (createOptions.getCustomer() != null) {
+                Log.d(Const.LOG_TAG, "Customer: " + createOptions.getCustomer());
                 settingsHelper.setEnrollOptionCustomer(createOptions.getCustomer());
             }
             if (createOptions.getConfiguration() != null) {
@@ -312,6 +323,15 @@ public class BaseActivity extends AppCompatActivity {
         dialogEnterServerBinding.setServer(serverUrl);
 
         enterServerDialog.setContentView( dialogEnterServerBinding.getRoot() );
+        enterServerDialog.setOnShowListener(dialog -> {
+            dialogEnterServerBinding.serverUrl.requestFocus();
+        });
+        dialogEnterServerBinding.serverUrl.setOnFocusChangeListener((view, hasFocus) -> {
+            if (hasFocus) {
+                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
         enterServerDialog.show();
     }
 
@@ -381,6 +401,12 @@ public class BaseActivity extends AppCompatActivity {
         }
         dialogDeviceInfoBinding.setImei(imei);
 
+        String hideIdsStr = settingsHelper.getAppPreference(getPackageName(), "hide_ids");
+        if ("1".equals(hideIdsStr) || "true".equalsIgnoreCase(hideIdsStr)) {
+            dialogDeviceInfoBinding.imeiLayout.setVisibility(View.GONE);
+            dialogDeviceInfoBinding.serialLayout.setVisibility(View.GONE);
+        }
+
         dialogDeviceInfoBinding.setDeviceId(SettingsHelper.getInstance(this).getDeviceId());
         dialogDeviceInfoBinding.setVersion(BuildConfig.VERSION_NAME + "-" + Utils.getLauncherVariant());
 
@@ -416,6 +442,7 @@ public class BaseActivity extends AppCompatActivity {
                 Utils.releaseUserRestrictions(this, config.getRestrictions());
             }
         }
+        Utils.disableScreenshots(false, this);
 
         new Handler().postDelayed(new Runnable() {
             @Override

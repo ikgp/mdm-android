@@ -128,4 +128,5 @@
     <string name="admin_not_supported">Ihr Gerät verfügt über keine Geräteadministratoroption. Klicken Sie auf Überspringen, um fortzufahren.</string>
     <string name="admin_remove_success">%s ist nun kein Geräteadministrator mehr und kann entfernt werden.</string>
     <string name="built_by">Gebaut von Aaron Dewes.</string>
+    <string name="manage_storage_not_supported">Ihr Gerät verfügt nicht über die Möglichkeit, den externen Speicher zu verwalten.</string>
 </resources>
