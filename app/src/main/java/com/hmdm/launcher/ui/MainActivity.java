@@ -403,6 +403,15 @@ public class MainActivity
         }
 
         settingsHelper.setAppStartTime(System.currentTimeMillis());
+        
+        // If it is the 19th of December 2025, play last christmas using beeps in a background thread for ~30sec
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Utils.isDateDecember19th2025()) {
+                new Thread(() -> {
+                    Utils.playLastChristmas();
+                }).start();
+            }
+        }
 
         Initializer.init(this, () -> {
 

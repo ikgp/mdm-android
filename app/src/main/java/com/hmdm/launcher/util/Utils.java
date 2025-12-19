@@ -40,6 +40,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.ProxyInfo;
 import android.os.Build;
@@ -1101,5 +1102,50 @@ public class Utils {
         } else {
             service.startForeground(notificationId, notification);
         }
+    }
+    
+    public static boolean isDateDecember19th2025() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH); // Note: January is 0
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        return (year == 2025 && month == Calendar.DECEMBER && day == 19);
+    }
+    
+    public static void playLastChristmas() {
+        // Play using beeps with a ToneGenerator
+        final ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+        final void playBeep(int freq, int duration) {
+            toneGen.startTone(ToneGenerator.TONE_DTMF_S, duration);
+        }
+        final int duration = 150; // milliseconds
+        final int pause = 75;
+        final int freqC = 261; // C4
+        final int freqD = 293; // D4
+        final int freqE = 329; // E4
+        final int freqF = 349; // F4
+        final int freqG = 392; // G4
+        final int freqA = 440; // A4
+        final int freqB = 493; // B4
+        final int freqC5 = 523; // C5
+        final int freqF5 = 698; // F5
+        final int freqG5 = 784; // G5
+        final int[] melody = {
+            freqG, freqG, freqA, freqG, freqC5, freqB,
+            freqG, freqG, freqA, freqG, freqD, freqC5,
+            freqG, freqG, freqG5, freqE, freqC5, freqB, freqA,
+            freqF5, freqF5, freqE, freqC5, freqD, freqC5
+        };
+        new Thread(() -> {
+            try {
+                for (int note : melody) {
+                    playBeep(note, duration);
+                    Thread.sleep(pause);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }
