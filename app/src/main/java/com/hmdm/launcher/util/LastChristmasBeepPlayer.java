@@ -73,20 +73,20 @@ public final class LastChristmasBeepPlayer {
     private static final double B6 = 1975.53;
 
     // --- Main melody ---
-private static final double[][] MELODY_CHORUS = {
+    private static final double[][] MELODY = {
 
-    // Chorus 1
-    {E5, 200}, {D5, 200}, {C5, 400}, {B4, 400}, {A4, 800},   // "Last Christmas, I gave you my heart"
-    {B4, 200}, {C5, 200}, {D5, 400}, {C5, 400}, {B4, 800},   // "But the very next day..."
-    {G4, 200}, {A4, 200}, {B4, 400}, {A4, 400}, {G4, 800},   // "You gave it away..."
-    {A4, 200}, {G4, 600},                                       // "You gave it away..."
+        // Chorus 1
+        {E5, 200}, {D5, 200}, {C5, 400}, {B4, 400}, {A4, 800},   // "Last Christmas, I gave you my heart"
+        {B4, 200}, {C5, 200}, {D5, 400}, {C5, 400}, {B4, 800},   // "But the very next day..."
+        {G4, 200}, {A4, 200}, {B4, 400}, {A4, 400}, {G4, 800},   // "You gave it away..."
+        {A4, 200}, {G4, 600},                                       // "You gave it away..."
 
-    // Chorus 2 (repeat)
-    {E5, 200}, {D5, 200}, {C5, 400}, {B4, 400}, {A4, 800},
-    {B4, 200}, {C5, 200}, {D5, 400}, {C5, 400}, {B4, 800},
-    {G4, 200}, {A4, 200}, {B4, 400}, {A4, 400}, {G4, 800},
-    {A4, 200}, {G4, 600}
-};
+        // Chorus 2 (repeat)
+        {E5, 200}, {D5, 200}, {C5, 400}, {B4, 400}, {A4, 800},
+        {B4, 200}, {C5, 200}, {D5, 400}, {C5, 400}, {B4, 800},
+        {G4, 200}, {A4, 200}, {B4, 400}, {A4, 400}, {G4, 800},
+        {A4, 200}, {G4, 600}
+    };
 
     // --- Singleton boilerplate ---
     private LastChristmasBeepPlayer() {
