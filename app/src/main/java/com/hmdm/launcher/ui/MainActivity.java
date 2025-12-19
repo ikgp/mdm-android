@@ -492,7 +492,7 @@ public class MainActivity
         // Here we initialize all required fields to avoid crash at startup
         reinitApp();
 
-        statusBarUpdater.startUpdating(this, binding.clock);
+        statusBarUpdater.startUpdating(this, binding.clock, binding.date);
 
         startServicesWithRetry();
 
